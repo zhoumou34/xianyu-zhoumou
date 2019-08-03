@@ -15,8 +15,8 @@
 
     <el-form class="search-form-content" ref="form" label-width="80px">
       <el-form-item label="出发城市">
-        <!-- fetch-suggestions 返回输入建议的方法 -->
-        <!-- select 点击选中建议项时触发 -->
+        <!-- fetch-suggestions: 当每次在输入框中输入文字时候会触发该事件 -->
+        <!-- select：选中下拉列表的选项时候触发的事件 -->
         <el-autocomplete
           :fetch-suggestions="queryDepartSearch"
           placeholder="请搜索出发城市"
@@ -25,6 +25,7 @@
           v-model="form.departCity"
         ></el-autocomplete>
       </el-form-item>
+
       <el-form-item label="到达城市">
         <el-autocomplete
           :fetch-suggestions="queryDestSearch"
@@ -34,6 +35,7 @@
           v-model="form.destCity"
         ></el-autocomplete>
       </el-form-item>
+
       <el-form-item label="出发时间">
         <!-- change 用户确认选择日期时触发 -->
         <el-date-picker
@@ -44,6 +46,7 @@
           v-model="form.departDate"
         ></el-date-picker>
       </el-form-item>
+
       <el-form-item label>
         <el-button style="width:100%;" type="primary" icon="el-icon-search" @click="handleSubmit">搜索</el-button>
       </el-form-item>
@@ -64,6 +67,7 @@ export default {
         { icon: "iconfont iconshuangxiang", name: "往返" }
       ],
       currentTab: 0,
+
       // 表单数据
       form: {
         departCity: "",
@@ -82,16 +86,17 @@ export default {
       }
     },
 
-    // 出发城市输入框获得焦点时触发
-    // value 是选中的值
-    // cb是回调函数，接收要展示的列表,必须要调用,接收的参数格式是固定的,必须是一个数组,数组的每一项必须是对象
-    //  对象中必须包含value属性
+    // 出发城市每次输入值时候触发
+    // value: 输入框的值
+    // cb：回调函数，必须要调用，接收的参数格式是固定的,必须是一个数组，数组中每一项必须是一个对象
+    // 对象中必须包含value属性
     queryDepartSearch(value, cb) {
       // 没有输入框的值时候返回
       if (!value) {
         cb([]);
         return;
       }
+
       // 获取城市列表
       this.$axios({
         url: "http://157.122.54.189:9095/airs/city",
@@ -102,15 +107,23 @@ export default {
       }).then(res => {
         const { data } = res.data;
 
+        // 循环给每一项数据添加一个value属性,map写法
+        // const newData = data.map( v => {
+        //     v.value = v.name.replace("市", ""); // 城市名称
+        //     return v;
+        // } )
+
         // forEach写法
         const newData = [];
         data.forEach(v => {
           v.value = v.name.replace("市", "");
           newData.push(v);
         });
-        // 设置第一个为选中的默认值
+
+        //  设置第一个为选中的默认值
         this.form.departCity = newData[0].value;
         this.form.departCode = newData[0].sort;
+
         cb(newData);
       });
     },
@@ -118,10 +131,12 @@ export default {
     // 目标城市输入框获得焦点时触发
     // value 是选中的值，cb是回调函数，接收要展示的列表
     queryDestSearch(value, cb) {
+      // 没有输入框的值时候返回
       if (!value) {
         cb([]);
         return;
       }
+
       // 获取城市列表
       this.$axios({
         url: "http://157.122.54.189:9095/airs/city",
@@ -138,9 +153,11 @@ export default {
           v.value = v.name.replace("市", "");
           newData.push(v);
         });
-        // 设置第一个为选中的默认值
+
+        //  设置第一个为选中的默认值
         this.form.destCity = newData[0].value;
         this.form.destCode = newData[0].sort;
+
         cb(newData);
       });
     },
@@ -149,11 +166,11 @@ export default {
     handleDepartSelect(item) {
       // 赋值给出发城市
       this.form.departCity = item.value;
-      // 辅助给出发城市代码
+      // 赋值给出发城市代码
       this.form.departCode = item.sort;
     },
 
-    // 目标城市下拉选择时触发
+    // 到达城市下拉选择时触发
     handleDestSelect(item) {
       this.form.destCity = item.value;
       this.form.destCode = item.sort;
@@ -167,25 +184,31 @@ export default {
     // 触发和目标城市切换时触发
     handleReverse() {
       const { departCity, departCode, destCity, destCode } = this.form;
+
       this.form.departCity = destCity;
       this.form.departCode = destCode;
+
       this.form.destCity = departCity;
       this.form.destCode = departCode;
     },
+
     // 提交表单是触发
     handleSubmit() {
+      // 表单验证
       if (!this.form.departCity) {
         this.$alert("出发城市不能为空", "提示", {
           type: "warning"
         });
         return;
       }
+
       if (!this.form.destCity) {
         this.$alert("到达城市不能为空", "提示", {
           type: "warning"
         });
         return;
       }
+
       if (!this.form.departDate) {
         this.$alert("出发时间不能为空", "提示", {
           type: "warning"
@@ -193,46 +216,10 @@ export default {
         return;
       }
 
-      // 表单验证数据
-      const rules = {
-        depart: {
-          value: this.form.departCity,
-          message: "请选择出发城市"
-        },
-        dest: {
-          value: this.form.destCity,
-          message: "请选择到达城市"
-        },
-        departDate: {
-          value: this.form.departDate,
-          message: "请选择出发时间"
-        }
-      };
-
-      let valid = true; // 表单验证结果
-
-      Object.keys(rules).forEach(v => {
-        // 只要有一个结果不通过，就停止循环
-        if (!valid) return;
-        const item = rules[v];
-
-        // 数据字段为空
-        if (!item.value) {
-          valid = false;
-
-          this.$confirm(item.message, "提示", {
-            confirmButtonText: "确定",
-            showCancelButton: false,
-            type: "warning"
-          });
-        }
-      });
-
-      // 不通过验证，不需要往下执行
-      if (!valid) return;
-
+      // 跳转到机票列表页
       this.$router.push({
         path: "/air/flights",
+        // url的5个参数
         query: this.form
       });
     }
