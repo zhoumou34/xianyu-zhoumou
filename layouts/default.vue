@@ -1,49 +1,50 @@
 <template>
   <div>
-    <Header />
-    <nuxt />
-    <Footer />
+
+        <Header/>
+
+        <!-- 组件占位符，相当于router-view -->
+        <nuxt />
+
+        <Footer/>
+
   </div>
 </template>
+
 <script>
-import Header from "@/components/header";
-import Footer from "@/components/footer";
+
+// 导入头部组件，.vue文件扩展名可以省略
+import Header from "@/components/header"
+import Footer from "@/components/footer"
+
 export default {
-  // 注册组件
-  components: {
-    Header,
-    Footer
-  }
-};
+    
+    // 注册组件
+    components: {
+        Header,
+        Footer
+    }
+}
 </script>
 
-<style lang='less'>
-html {
-  font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-size: 16px;
-  word-spacing: 1px;
-  -ms-text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-font-smoothing: antialiased;
-  box-sizing: border-box;
+
+<style>
+/* 公共样式，不要加scoped */
+*{
+    margin:0;
+    padding:0;
 }
-* {
-  margin: 0;
-  padding: 0;
+
+ul,li,ol{
+    list-style:none;
 }
-ul,
-li,
-ol {
-  list-style-type: none;
+
+a{
+    color: inherit;
+    text-decoration: none;
 }
-a {
-  text-decoration: none;
-  color: inherit;
-}
-em,
-i {
-  font-style: normal;
+
+em,i{
+    font-style: normal;
 }
 </style>
